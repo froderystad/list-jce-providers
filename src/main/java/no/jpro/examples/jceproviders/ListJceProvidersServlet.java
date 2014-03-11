@@ -1,4 +1,4 @@
-package no.rystad.jceproviders;
+package no.jpro.examples.jceproviders;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;

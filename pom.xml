@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>no.rystad</groupId>
+    <groupId>no.jpro.examples</groupId>
     <artifactId>list-jce-providers-web</artifactId>
     <version>0.1-SNAPSHOT</version>
     <packaging>war</packaging>
@@ -34,6 +34,7 @@
     <profiles>
         <profile>
             <id>wildfly-8-final</id>
+            <!-- NOTE: Currently not correct config -->
             <build>
                 <plugins>
                     <plugin>
@@ -50,7 +51,7 @@
 
                             <configuration>
                                 <type>existing</type>
-                                <home>/Users/frode/Downloads/wildfly-8.0.0.Final</home>
+                                <home>${env.JBOSS_HOME}</home>
                             </configuration>
 
                             <deployables>
