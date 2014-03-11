@@ -34,7 +34,7 @@
     <profiles>
         <profile>
             <id>wildfly-8-final</id>
-            <!-- NOTE: Currently not correct config -->
+            <!-- NOTE: Port-offset = 100 -->
             <build>
                 <plugins>
                     <plugin>
@@ -44,23 +44,26 @@
                         <configuration>
                             <container>
                                 <containerId>wildfly8x</containerId>
-
-                                <log>${basedir}/target/cargo.log</log>
-                                <output>${basedir}/target/wildfly.log</output>
+                                <type>installed</type>
+                                <home>${env.JBOSS_HOME}</home>
+                                <systemProperties>
+                                    <jboss.socket.binding.port-offset>100</jboss.socket.binding.port-offset>
+                                </systemProperties>
                             </container>
 
                             <configuration>
                                 <type>existing</type>
-                                <home>${env.JBOSS_HOME}</home>
+                                <home>${env.JBOSS_HOME}/standalone</home>
+                                <properties>
+                                    <cargo.port.offset>100</cargo.port.offset>
+                                    <cargo.jboss.configuration>standalone</cargo.jboss.configuration>
+                                </properties>
                             </configuration>
 
                             <deployables>
                                 <deployable>
-                                    <pingURL>http://localhost:8080/ListJceProviders</pingURL>
-                                    <pingTimeout>120000</pingTimeout> <!-- 2 min -->
-                                    <properties>
-                                        <context>app</context>
-                                    </properties>
+                                    <pingURL>http://localhost:8180/ListJceProviders</pingURL>
+                                    <pingTimeout>120000</pingTimeout>
                                 </deployable>
                             </deployables>
                         </configuration>
