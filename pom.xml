@@ -62,7 +62,7 @@
 
                             <deployables>
                                 <deployable>
-                                    <pingURL>http://localhost:8180/ListJceProviders</pingURL>
+                                    <pingURL>http://localhost:8180/jce/ListJceProviders</pingURL>
                                     <pingTimeout>120000</pingTimeout>
                                 </deployable>
                             </deployables>
