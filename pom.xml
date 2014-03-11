@@ -1,0 +1,83 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>no.rystad</groupId>
+    <artifactId>list-jce-providers-web</artifactId>
+    <version>0.1-SNAPSHOT</version>
+    <packaging>war</packaging>
+    <name>ListJCEProviders webapp</name>
+
+    <dependencies>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>3.1.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <version>2.4</version>
+                <configuration>
+                    <failOnMissingWebXml>false</failOnMissingWebXml>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+
+    <profiles>
+        <profile>
+            <id>wildfly-8-final</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.codehaus.cargo</groupId>
+                        <artifactId>cargo-maven2-plugin</artifactId>
+                        <version>1.4.7</version>
+                        <configuration>
+                            <container>
+                                <containerId>wildfly8x</containerId>
+
+                                <log>${basedir}/target/cargo.log</log>
+                                <output>${basedir}/target/wildfly.log</output>
+                            </container>
+
+                            <configuration>
+                                <type>existing</type>
+                                <home>/Users/frode/Downloads/wildfly-8.0.0.Final</home>
+                            </configuration>
+
+                            <deployables>
+                                <deployable>
+                                    <pingURL>http://localhost:8080/ListJceProviders</pingURL>
+                                    <pingTimeout>120000</pingTimeout> <!-- 2 min -->
+                                    <properties>
+                                        <context>app</context>
+                                    </properties>
+                                </deployable>
+                            </deployables>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>start-cargo</id>
+                                <phase>pre-integration-test</phase>
+                                <goals><goal>start</goal></goals>
+                            </execution>
+                            <execution>
+                                <id>stop-cargo</id>
+                                <phase>post-integration-test</phase>
+                                <goals><goal>stop</goal></goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
+</project>
