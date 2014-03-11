@@ -24,29 +24,53 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 @WebServlet(urlPatterns = "/JceStatus")
 public class JceStatusServlet extends HttpServlet {
+
 	private static final Charset UTF8 = Charset.forName("UTF-8");
+	private static final String ASYMMETRIC_KEY_ALG = "RSA";
+	private static final String ASYMMETRIC_CIPHER_ALG = "RSA/ECB/PKCS1Padding";
+	private static final String BOUNCY_CASTLE_NAME = "BC";
 	private static final String MY_SECRET = "My secret";
 
 	@Override
 	protected void doGet(final HttpServletRequest request, final HttpServletResponse response) throws ServletException, IOException {
 		PrintWriter writer = response.getWriter();
 
-		Provider bcProvider = Security.getProvider("BC");
-		writer.println("BouncyCastle (BC) is available: " + (bcProvider != null));
+		printWhetherBouncyCastleIsAvailable(writer);
+		printEncryptionReport(writer);
+		printWhetherBouncyCastleCanBeInstantiated(writer);
+	}
 
+	private void printWhetherBouncyCastleIsAvailable(final PrintWriter writer) {
+		Provider bcProvider = Security.getProvider(BOUNCY_CASTLE_NAME);
+		writer.println("BouncyCastle (BC) is available: " + (bcProvider != null));
+	}
+
+	@SuppressWarnings({ "unused", "MismatchedReadAndWriteOfArray" })
+	private void printEncryptionReport(final PrintWriter writer) throws ServletException {
 		try {
-			Cipher cipher = Cipher.getInstance("RSA/ECB/PKCS1Padding");
-			cipher.init(Cipher.ENCRYPT_MODE, generateKeyPair().getPrivate());
-			@SuppressWarnings({"unused", "MismatchedReadAndWriteOfArray"})
+			KeyPair keyPair = generateKeyPair();
+			Cipher cipher = Cipher.getInstance(ASYMMETRIC_CIPHER_ALG);
+
+			cipher.init(Cipher.ENCRYPT_MODE, keyPair.getPrivate());
 			byte[] encryptedBytes = cipher.doFinal(MY_SECRET.getBytes(UTF8));
 
-			writer.println("Successfully encrypted with provider: " + cipher.getProvider().getName());
+			cipher.init(Cipher.DECRYPT_MODE, keyPair.getPublic());
+			byte[] decryptedBytes = cipher.doFinal(encryptedBytes);
+			String decryptedString = new String(decryptedBytes, UTF8);
+
+			writer.println("Successfully encrypted/decrypted using RSA with provider: " + cipher.getProvider().getName());
 		} catch (NoSuchAlgorithmException | NoSuchPaddingException | InvalidKeyException | BadPaddingException | IllegalBlockSizeException e) {
 			throw new ServletException(e);
 		}
+	}
 
-		writer.print("Can instantiate BouncyCastleProvider: ");
-		writer.println(canInstantiateBouncyCastleProvider());
+	private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
+		KeyPairGenerator keyGen = KeyPairGenerator.getInstance(ASYMMETRIC_KEY_ALG);
+		return keyGen.genKeyPair();
+	}
+
+	private void printWhetherBouncyCastleCanBeInstantiated(final PrintWriter writer) {
+		writer.println("Can instantiate BouncyCastleProvider: " + canInstantiateBouncyCastleProvider());
 	}
 
 	private boolean canInstantiateBouncyCastleProvider() {
@@ -56,10 +80,5 @@ public class JceStatusServlet extends HttpServlet {
 		} catch (Throwable e) {
 			return false;
 		}
-	}
-
-	private KeyPair generateKeyPair() throws NoSuchAlgorithmException {
-		KeyPairGenerator keyGen = KeyPairGenerator.getInstance("RSA");
-		return keyGen.genKeyPair();
 	}
 }
